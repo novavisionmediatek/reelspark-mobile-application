@@ -127,6 +127,7 @@ export function VideoPlayer({ platform, videoId, playing, muted = true, onEnded,
           scrollEnabled={false}
           bounces={false}
           overScrollMode="never"
+          javaScriptEnabled={true}
         />
       ) : null}
 
@@ -149,6 +150,9 @@ export function VideoPlayer({ platform, videoId, playing, muted = true, onEnded,
             mediaPlaybackRequiresUserAction={false}
             domStorageEnabled
             overScrollMode="never"
+            javaScriptEnabled={true}
+            renderToHardwareTextureAndroid={true}
+            startInLoadingState={false}
           />
           {/* Top + bottom scrim "padding", same as the YouTube embed's #mask-top /
               #mask-bottom: opaque for OPAQUE px, then fading out. Top gives the

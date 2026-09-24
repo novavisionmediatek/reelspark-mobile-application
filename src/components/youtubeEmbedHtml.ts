@@ -81,12 +81,17 @@ export function youtubeEmbedHtml(videoId: string, origin: string = YT_EMBED_ORIG
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<!-- Open the connections this frame is about to need before the inline script
-     even runs, so tap-to-play reaches a real video frame sooner. -->
-<link rel="preconnect" href="https://www.youtube.com" />
-<link rel="preconnect" href="https://i.ytimg.com" />
-<link rel="preconnect" href="https://s.ytimg.com" />
-<link rel="preconnect" href="https://googleads.g.doubleclick.net" />
+<!-- Aggressive resource preloading for instant playback -->
+<link rel="dns-prefetch" href="https://www.youtube.com" />
+<link rel="dns-prefetch" href="https://i.ytimg.com" />
+<link rel="dns-prefetch" href="https://s.ytimg.com" />
+<link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
+<link rel="preconnect" href="https://www.youtube.com" crossorigin />
+<link rel="preconnect" href="https://i.ytimg.com" crossorigin />
+<link rel="preconnect" href="https://s.ytimg.com" crossorigin />
+<link rel="preconnect" href="https://www.youtube.com/iframe_api" />
+<link rel="prefetch" href="https://www.youtube.com/iframe_api" as="script" />
+<script src="https://www.youtube.com/iframe_api" async></script>
 <style>
   html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
   /* clip everything YouTube draws outside the framed video */
@@ -191,10 +196,6 @@ export function youtubeEmbedHtml(videoId: string, origin: string = YT_EMBED_ORIG
     try { p.unloadModule('cc'); } catch (err) {}
     try { p.setOption('captions', 'track', {}); } catch (err) {}
   }
-
-  var tag = document.createElement('script');
-  tag.src = 'https://www.youtube.com/iframe_api';
-  document.body.appendChild(tag);
 
   function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {

@@ -6,6 +6,7 @@ import {
   Image,
   LayoutChangeEvent,
   Pressable,
+  Share,
   StyleSheet,
   Text,
   View,
@@ -131,6 +132,18 @@ function FeedItem({ video, isActive, itemHeight, soundOn, onToggleSound, onCreat
   const bumpCommentCount = useCallback((delta: number) => {
     setCommentCount((c) => Math.max(0, c + delta));
   }, []);
+
+  const handleShare = useCallback(() => {
+    try {
+      Share.share({
+        title: video.title || 'Check out this video',
+        message: `${video.title || 'Check out this video'} on ReelSpark`,
+        url: `https://reelspark.in/video/${video.id}`,
+      });
+    } catch (error) {
+      console.error('Share failed:', error);
+    }
+  }, [video.id, video.title]);
 
   const countView = useCallback(() => {
     if (countedView.current) return;
@@ -308,7 +321,7 @@ function FeedItem({ video, isActive, itemHeight, soundOn, onToggleSound, onCreat
           </Pressable>
           {commentCount > 0 ? <Text style={styles.railActionLabel}>{commentCount}</Text> : null}
         </View>
-        <Pressable style={styles.railBtn} accessibilityLabel="Share video">
+        <Pressable style={styles.railBtn} onPress={handleShare} accessibilityLabel="Share video">
           <Feather name="share-2" size={18} color="#fff" />
         </Pressable>
         {/* YouTube only — a reel starts muted on tap (WebViews block

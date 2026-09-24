@@ -48,8 +48,9 @@ export function VideoPlayerScreen({ route, navigation }: Props) {
     setPosterUri((current) => (current ? ytThumbnailFallback(video.thumbnail_url, current) ?? current : current));
   };
 
+  // Instagram auto-plays immediately for instant video playback
   useEffect(() => {
-    if (isInstagram) setPlaying(true);
+    setPlaying(isInstagram);
   }, [isInstagram]);
 
   const countView = () => {
