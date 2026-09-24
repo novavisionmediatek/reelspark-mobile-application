@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "ReelSpark",
+    "slug": "mobile-native",
+    "version": "1.0.0",
+    "scheme": "reelspark",
+    "platforms": ["ios", "android", "web"],
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B0B18",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0B18",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "ReelSpark needs photo access so you can set a profile picture."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#6153F5"
+        }
+      ]
+    ]
+  }
+}

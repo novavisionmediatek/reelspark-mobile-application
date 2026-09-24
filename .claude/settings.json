@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes create-expo-app@latest mobile-native --template blank-typescript)",
+      "Bash(git status *)"
+    ],
+    "additionalDirectories": [
+      "D:\\project\\reelspark\\reelsparks"
+    ]
+  }
+}
