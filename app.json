@@ -4,7 +4,11 @@
     "slug": "mobile-native",
     "version": "1.0.0",
     "scheme": "reelspark",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -37,7 +41,8 @@
         {
           "color": "#6153F5"
         }
-      ]
+      ],
+      "expo-web-browser"
     ]
   }
 }

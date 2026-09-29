@@ -48,6 +48,11 @@ function ReferralCard() {
   const paidUntilMs = profile?.paid_until ? new Date(profile.paid_until).getTime() : null;
   const expired = status === 'approved' && paidUntilMs !== null && paidUntilMs <= Date.now();
   const pill = expired ? PAYMENT_PILL.expired : PAYMENT_PILL[status] ?? PAYMENT_PILL.unpaid;
+  // Only an active (paid, unexpired) membership can refer anyone — mirrors
+  // PaymentScreen's membershipActive and the server-side gate in
+  // credit_referrer_bonus (has_active_membership), so the client-hidden state
+  // matches what the backend would actually pay out for.
+  const membershipActive = status === 'approved' && !expired;
 
   const { data: friendCount } = useQuery({
     queryKey: ['referralCount', profile?.id],
@@ -63,7 +68,7 @@ function ReferralCard() {
   });
 
   async function shareInvite() {
-    if (!code) return;
+    if (!membershipActive || !code) return;
     const link = referralLink(code);
     try {
       await Share.share({
@@ -85,15 +90,31 @@ function ReferralCard() {
         </Pressable>
       </View>
 
-      <Text style={styles.referralBody}>
-        Friends who join with your code and complete registration earn you ₹{settings.referral_bonus_inr}.
-      </Text>
+      {membershipActive ? (
+        <>
+          <Text style={styles.referralBody}>
+            Friends who join with your code and complete registration earn you ₹{settings.referral_bonus_inr}.
+          </Text>
 
-      <Pressable style={styles.codeRow} onPress={shareInvite}>
-        <Text style={styles.code}>{code || '—'}</Text>
-        <Feather name="share-2" size={15} color={colors.indigo} />
-        <Text style={styles.codeHint}>Tap to share invite link</Text>
-      </Pressable>
+          <Pressable style={styles.codeRow} onPress={shareInvite}>
+            <Text style={styles.code}>{code || '—'}</Text>
+            <Feather name="share-2" size={15} color={colors.indigo} />
+            <Text style={styles.codeHint}>Tap to share invite link</Text>
+          </Pressable>
+        </>
+      ) : (
+        <>
+          <Text style={styles.referralBody}>
+            Activate your ₹{settings.registration_fee_inr}/year membership to unlock your referral code and start
+            earning.
+          </Text>
+
+          <Pressable style={styles.codeRow} onPress={() => rootNav?.navigate('Payment')}>
+            <Text style={styles.codeHint}>Pay to unlock referrals</Text>
+            <Feather name="chevron-right" size={16} color={colors.indigo} />
+          </Pressable>
+        </>
+      )}
 
       <View style={styles.referralStatsRow}>
         <View>

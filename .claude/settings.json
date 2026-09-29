@@ -2,10 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(npx --yes create-expo-app@latest mobile-native --template blank-typescript)",
-      "Bash(git status *)"
+      "Bash(git status *)",
+      "Bash(npm uninstall *)",
+      "Bash(supabase projects *)"
     ],
     "additionalDirectories": [
-      "D:\\project\\reelspark\\reelsparks"
+      "D:\\project\\reelspark\\reelsparks",
+      "D:\\project\\reelspark\\reelsparks\\supabase\\migrations"
     ]
   }
 }

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthProvider';
-import { looksLikePhone, openRazorpayCheckout, RazorpayCancelledError } from '../lib/payments/razorpay';
+import { openPhonePeCheckout, PhonePeCancelledError } from '../lib/payments/phonepe';
 import {
   configureRevenueCat,
   getMembershipOffering,
@@ -11,7 +11,7 @@ import {
 import type { RegistrationPayment } from '../types/database';
 
 // A 'created' row older than this is treated as an abandoned checkout, not an
-// in-flight one — matches the reuse window in start_razorpay_payment.
+// in-flight one — matches REUSE_WINDOW_MIN in phonepe-create-order.
 export const CREATED_FRESH_MS = 15 * 60 * 1000;
 
 export function isConfirming(payment: RegistrationPayment | null | undefined): boolean {
@@ -24,10 +24,10 @@ export function isConfirming(payment: RegistrationPayment | null | undefined): b
 }
 
 // The current user's most recent registration payment attempt. While it's still
-// mid-flight (a fresh 'created' Razorpay order, or a legacy 'submitted' row) we
+// mid-flight (a fresh 'created' PhonePe order, or a legacy 'submitted' row) we
 // poll so a webhook-only confirmation still flips the UI. Also how the
 // RevenueCat path notices its webhook landed — it never gets a client-side
-// "verified" result the way Razorpay's checkout `handler` callback does.
+// "verified" result the way the PhonePe checkout flow's instant verify fetch does.
 export function useRegistrationPayment() {
   const { session } = useAuth();
   const userId = session?.user.id;
@@ -53,10 +53,8 @@ export function useRegistrationPayment() {
 }
 
 interface CreateOrderResponse {
-  orderId: string;
-  amount: number;
-  currency: string;
-  keyId: string;
+  merchantOrderId: string;
+  checkoutUrl: string;
   registrationFeeInr: number;
 }
 
@@ -80,60 +78,54 @@ async function invokeFn<T>(name: string, body: Record<string, unknown>): Promise
 
 export type PayOutcome = 'verified' | 'pending_webhook';
 
-// Android only (§6) — opens the native Razorpay Checkout sheet for the annual
-// membership fee via `react-native-razorpay`, replacing the web build's
+// Android only (§6) — opens PhonePe's hosted Standard Checkout page for the
+// annual membership fee via `expo-web-browser`, replacing the web build's
 // checkout.js overlay. Same Edge Function flow as web:
-//  - resolves 'verified'        — payment done and our verify call confirmed it
-//  - resolves 'pending_webhook' — payment done, verify call failed; the webhook
-//                                 will confirm shortly (show a "confirming" state)
-//  - rejects  Error('cancelled')       — user dismissed the sheet
-//  - rejects  Error(<reason>)          — payment failed / order couldn't be created
-export function usePayWithRazorpay() {
+//  - resolves 'verified'        — payment done and our instant verify fetch
+//                                 (phonepe-verify-payment, called the moment the
+//                                 checkout page closes) confirmed it
+//  - resolves 'pending_webhook' — checkout closed but that instant fetch didn't
+//                                 confirm yet (PhonePe hasn't settled); the
+//                                 webhook/15s poll will confirm shortly (show a
+//                                 "confirming" state) — never a manual admin review
+//  - rejects  Error('cancelled')       — user dismissed the checkout page
+//  - rejects  Error(<reason>)          — order couldn't be created
+export function usePayWithPhonePe() {
   const queryClient = useQueryClient();
-  const { session, profile, refreshProfile } = useAuth();
+  const { session, refreshProfile } = useAuth();
 
   return useMutation<PayOutcome, Error, void>({
     mutationFn: async () => {
-      const order = await invokeFn<CreateOrderResponse>('razorpay-create-order', {});
+      const order = await invokeFn<CreateOrderResponse>('phonepe-create-order', {});
 
-      let resp;
       try {
-        resp = await openRazorpayCheckout({
-          keyId: order.keyId,
-          orderId: order.orderId,
-          amountPaise: order.amount,
-          currency: order.currency,
-          descriptionInr: order.registrationFeeInr,
-          prefill: {
-            name: profile?.display_name ?? undefined,
-            email: profile?.email ?? undefined,
-            contact: looksLikePhone(profile?.phone) ? profile.phone : undefined,
-          },
-        });
+        await openPhonePeCheckout(order.checkoutUrl);
       } catch (err) {
-        if (err instanceof RazorpayCancelledError) throw new Error('cancelled');
+        if (err instanceof PhonePeCancelledError) throw new Error('cancelled');
         throw err;
       }
 
+      // Fetch the order status immediately — no waiting on an admin or a batch
+      // job. phonepe-verify-payment calls PhonePe's Order Status API right now
+      // and, if it's already COMPLETED, approves the membership in the same
+      // request.
       try {
-        await invokeFn('razorpay-verify-payment', {
-          razorpay_order_id: resp.razorpay_order_id,
-          razorpay_payment_id: resp.razorpay_payment_id,
-          razorpay_signature: resp.razorpay_signature,
-        });
-        return 'verified';
+        const verify = await invokeFn<{ status: 'approved' | 'pending' | 'failed' }>(
+          'phonepe-verify-payment',
+          { merchantOrderId: order.merchantOrderId },
+        );
+        return verify.status === 'approved' ? 'verified' : 'pending_webhook';
       } catch (verifyErr) {
-        // Payment succeeded at Razorpay but our signature-verify call didn't
-        // confirm. Fall back to reconciling against Razorpay's API directly
-        // (works with no webhook configured).
-        console.error('[razorpay] verify-payment failed, reconciling:', verifyErr);
+        // The instant fetch itself failed (network blip etc.) — fall back to
+        // reconciling against PhonePe's Order Status API directly.
+        console.error('[phonepe] verify-payment failed, reconciling:', verifyErr);
         try {
-          const r = await invokeFn<{ status: string }>('razorpay-reconcile-payment', {
-            razorpay_order_id: resp.razorpay_order_id,
+          const r = await invokeFn<{ status: string }>('phonepe-reconcile-payment', {
+            merchantOrderId: order.merchantOrderId,
           });
           return r.status === 'approved' ? 'verified' : 'pending_webhook';
         } catch (reconcileErr) {
-          console.error('[razorpay] reconcile failed:', reconcileErr);
+          console.error('[phonepe] reconcile failed:', reconcileErr);
           return 'pending_webhook';
         }
       }
@@ -146,7 +138,7 @@ export function usePayWithRazorpay() {
 }
 
 // iOS only (§6) — RevenueCat/StoreKit purchase sheet for the same annual
-// membership. Unlike Razorpay there's no client-side "verified" result: the
+// membership. Unlike PhonePe there's no client-side "verified" result: the
 // purchase sheet resolving just means Apple accepted the payment, not that
 // our backend has recorded it — that only happens once RevenueCat's webhook
 // reaches revenuecat-webhook (not yet deployed). So this always resolves
@@ -185,15 +177,15 @@ export interface ReconcileResult {
 }
 
 // "Check again" on the confirming screen: asks the server to reconcile the
-// latest unconfirmed payment against Razorpay's API and confirm it if paid.
-// Android/Razorpay only — there is no equivalent manual recheck for the
-// RevenueCat path yet (it just waits on the webhook + poll).
+// latest unconfirmed payment against PhonePe's Order Status API and confirm
+// it if paid, instantly. Android/PhonePe only — there is no equivalent manual
+// recheck for the RevenueCat path yet (it just waits on the webhook + poll).
 export function useReconcilePayment() {
   const queryClient = useQueryClient();
   const { session, refreshProfile } = useAuth();
 
   return useMutation<ReconcileResult, Error, void>({
-    mutationFn: () => invokeFn<ReconcileResult>('razorpay-reconcile-payment', {}),
+    mutationFn: () => invokeFn<ReconcileResult>('phonepe-reconcile-payment', {}),
     onSuccess: async () => {
       await refreshProfile();
       queryClient.invalidateQueries({ queryKey: ['registrationPayment', session?.user.id] });

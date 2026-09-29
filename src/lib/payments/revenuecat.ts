@@ -1,10 +1,10 @@
 // iOS membership payment (PROJECT_PLAN.md §6). Apple Guideline 3.1.1 requires
 // Apple's own in-app purchase for this kind of unlock, so iOS goes through
-// RevenueCat (wrapping StoreKit) instead of Razorpay. RevenueCat's webhook
+// RevenueCat (wrapping StoreKit) instead of PhonePe. RevenueCat's webhook
 // (supabase/functions/revenuecat-webhook, not yet deployed — see that file)
 // is what actually flips profiles.payment_status; this module only drives the
 // purchase sheet and lets the caller poll for the webhook to land, the same
-// "pending_webhook" pattern the Razorpay path already uses.
+// "pending_webhook" pattern the PhonePe path already uses.
 //
 // Meaningless without a real RevenueCat project + an App Store Connect
 // subscription product — neither exists yet (§9 Phase 0's "kick off

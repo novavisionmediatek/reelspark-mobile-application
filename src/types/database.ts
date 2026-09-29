@@ -62,14 +62,19 @@ export interface RegistrationPayment {
   id: string;
   user_id: string;
   amount_inr: number;
-  // Legacy manual-UPI columns — null on Razorpay rows.
+  // Legacy manual-UPI columns — null on gateway-verified rows.
   upi_reference: string | null;
   screenshot_path: string | null;
-  // 'created' = Razorpay order placed, not yet verified.
+  // 'created' = gateway order placed, not yet verified.
   status: 'created' | 'submitted' | 'approved' | 'rejected';
+  // Legacy Razorpay identifiers — still populated on historical rows; the app
+  // no longer creates Razorpay orders (PhonePe only, see lib/payments/phonepe.ts).
   razorpay_order_id: string | null;
   razorpay_payment_id: string | null;
   razorpay_signature: string | null;
+  merchant_order_id: string | null;
+  phonepe_order_id: string | null;
+  phonepe_transaction_id: string | null;
   reviewed_by: string | null;
   reviewed_at: string | null;
   admin_note: string | null;
@@ -107,8 +112,6 @@ export interface AppSettings {
   registration_fee_inr: number;
   referral_bonus_inr: number;
   min_referral_withdrawal_inr: number;
-  // Publishable Razorpay key id (rzp_test_* / rzp_live_*). '' until an admin sets it.
-  razorpay_key_id: string;
   // Legacy manual-UPI fields — still the referral-withdrawal payout destination.
   upi_id?: string;
   upi_payee_name?: string;

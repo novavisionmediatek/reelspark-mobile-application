@@ -10,7 +10,7 @@ import {
   isConfirming,
   useReconcilePayment,
   useRegistrationPayment,
-  usePayWithRazorpay,
+  usePayWithPhonePe,
   usePurchaseWithRevenueCat,
 } from '../hooks/useRegistrationPayment';
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
@@ -32,7 +32,6 @@ function payErrorMessage(raw: string) {
       return 'Your membership is already active.';
     case 'too_many_attempts':
       return 'Too many attempts — wait a few minutes and try again.';
-    case 'razorpay_order_failed':
     case 'start_payment_failed':
       return "Couldn't start the payment. Please try again.";
     default:
@@ -44,10 +43,11 @@ export function PaymentScreen({ navigation }: Props) {
   const { profile, refreshProfile } = useAuth();
   const { settings } = useAppSettings();
   const { data: payment } = useRegistrationPayment();
-  // Android pays via the Razorpay SDK against the existing Edge Functions;
-  // iOS pays via RevenueCat/StoreKit, per Apple Guideline 3.1.1 (§6). Both
-  // ultimately just flip the same profiles.payment_status/paid_until.
-  const payAndroid = usePayWithRazorpay();
+  // Android pays via PhonePe's hosted Standard Checkout against the existing
+  // Edge Functions; iOS pays via RevenueCat/StoreKit, per Apple Guideline
+  // 3.1.1 (§6). Both ultimately just flip the same
+  // profiles.payment_status/paid_until.
+  const payAndroid = usePayWithPhonePe();
   const payIOS = usePurchaseWithRevenueCat();
   const pay = IS_IOS ? payIOS : payAndroid;
   const reconcile = useReconcilePayment();
@@ -67,7 +67,7 @@ export function PaymentScreen({ navigation }: Props) {
   const membershipExpired = status === 'approved' && paidUntilMs !== null && paidUntilMs <= now;
   const expiringSoon = membershipActive && paidUntilMs !== null && paidUntilMs - now < RENEW_WINDOW_MS;
 
-  // A confirmed payment (webhook or Razorpay callback) flips profile.payment_status
+  // A confirmed payment (webhook or PhonePe verify/reconcile call) flips profile.payment_status
   // to 'approved'; the 15s poll on the payment row + AuthProvider.refreshProfile
   // (fired from pay.onSuccess) bring it in without a reload. `confirming` = a pay
   // attempt this session whose result didn't confirm immediately (always true on
@@ -105,7 +105,7 @@ export function PaymentScreen({ navigation }: Props) {
     }
   }
 
-  // "Check again" on the confirming screen — reconcile against Razorpay's API.
+  // "Check again" on the confirming screen — reconcile against PhonePe's API.
   // Android only; there's no equivalent manual recheck for RevenueCat yet.
   async function handleRecheck() {
     setError(null);
@@ -229,7 +229,7 @@ export function PaymentScreen({ navigation }: Props) {
             A ₹{fee}/year membership unlocks video posting.{' '}
             {IS_IOS
               ? 'Pay securely through your Apple ID — access is granted the moment the purchase is confirmed.'
-              : 'Pay securely with UPI, cards, net-banking or wallets via Razorpay — access is granted the moment the payment is confirmed.'}
+              : 'Pay securely with UPI, cards, net-banking or wallets via PhonePe — access is granted the moment the payment is confirmed.'}
           </Text>
         </View>
 
