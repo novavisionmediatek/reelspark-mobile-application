@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import { LinearGradient } from 'expo-linear-gradient';
+import { colors } from '../theme/tokens';
 import { YT_EMBED_ORIGIN, youtubeEmbedHtml } from './youtubeEmbedHtml';
 import {
   INSTAGRAM_EXTRA_HEIGHT_PX,
@@ -158,7 +159,7 @@ export function VideoPlayer({ platform, videoId, playing, muted = true, onEnded,
               #mask-bottom: opaque for OPAQUE px, then fading out. Top gives the
               reel some breathing room; bottom also covers IG's footer text. */}
           <LinearGradient
-            colors={['#000', '#000', 'transparent']}
+            colors={[colors.band, colors.band, 'rgba(0,0,0,0)']}
             locations={[0, INSTAGRAM_MASK_TOP_OPAQUE_PX / INSTAGRAM_MASK_TOP_HEIGHT_PX, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
@@ -166,7 +167,7 @@ export function VideoPlayer({ platform, videoId, playing, muted = true, onEnded,
             pointerEvents="none"
           />
           <LinearGradient
-            colors={['transparent', '#000', '#000']}
+            colors={['rgba(0,0,0,0)', colors.band, colors.band]}
             locations={[0, 1 - INSTAGRAM_MASK_BOTTOM_OPAQUE_PX / INSTAGRAM_MASK_BOTTOM_HEIGHT_PX, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
@@ -184,5 +185,5 @@ const styles = StyleSheet.create({
   maskTop: { position: 'absolute', left: 0, right: 0, top: 0 },
   maskBottom: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   webNotice: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  webNoticeText: { color: 'rgba(255,255,255,0.75)', fontSize: 13, lineHeight: 19, textAlign: 'center' },
+  webNoticeText: { color: colors.textMuted, fontSize: 13, lineHeight: 19, textAlign: 'center' },
 });

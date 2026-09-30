@@ -14,9 +14,9 @@ import type { RootStackParamList } from '../navigation/types';
 type Props = NativeStackScreenProps<RootStackParamList, 'VideoPlayer'>;
 
 const PLACEHOLDER_GRADIENTS: [string, string][] = [
-  [colors.periwinkle, colors.indigo],
-  [colors.violet, colors.midnight],
-  [colors.indigo, colors.deepIndigo],
+  [colors.orange, colors.pink],
+  [colors.magenta, colors.deepPurple],
+  [colors.pink, colors.purple],
 ];
 
 function gradientFor(id: string) {
@@ -131,19 +131,17 @@ export function VideoPlayerScreen({ route, navigation }: Props) {
               resizeMode="cover"
               style={StyleSheet.absoluteFill}
             />
-            <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+            <BlurView intensity={30} tint="default" style={StyleSheet.absoluteFill} />
           </>
         ) : null}
 
         {showChrome ? (
           <>
-            <View style={styles.posterScrim} pointerEvents="none" />
-            <LinearGradient colors={['rgba(0,0,0,0.45)', 'transparent']} style={styles.topGradient} pointerEvents="none" />
           </>
         ) : null}
 
         <LinearGradient
-          colors={['transparent', 'rgba(11,11,24,0.95)']}
+          colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.85)']}
           style={styles.bottomGradient}
           pointerEvents="none"
         />
@@ -169,7 +167,7 @@ export function VideoPlayerScreen({ route, navigation }: Props) {
               onPress={toggleLike}
               accessibilityLabel={liked ? 'Unlike video' : 'Like video'}
             >
-              <Feather name="heart" size={18} color={liked ? colors.indigo : '#fff'} />
+              <Feather name="heart" size={18} color={liked ? colors.danger : colors.pink} />
             </Pressable>
             {likeCount > 0 ? <Text style={styles.railActionLabel}>{likeCount}</Text> : null}
           </View>
@@ -179,7 +177,7 @@ export function VideoPlayerScreen({ route, navigation }: Props) {
               onPress={() => setCommentsOpen(true)}
               accessibilityLabel="View comments"
             >
-              <Feather name="message-circle" size={18} color="#fff" />
+              <Feather name="message-circle" size={18} color={colors.pink} />
             </Pressable>
             {commentCount > 0 ? <Text style={styles.railActionLabel}>{commentCount}</Text> : null}
           </View>
@@ -200,41 +198,43 @@ export function VideoPlayerScreen({ route, navigation }: Props) {
   );
 }
 
+// Dark text over the video / light-blue bands; a soft white glow keeps it
+// readable where it crosses a dark frame.
+const onBlue = { textShadowColor: 'rgba(0,0,0,0.55)', textShadowRadius: 3, textShadowOffset: { width: 0, height: 1 } } as const;
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
   title: { ...type.bodySmall, color: colors.text, flex: 1, textAlign: 'center' },
   playerContainer: { flex: 1, overflow: 'hidden' },
   playerFill: { ...StyleSheet.absoluteFill, backgroundColor: '#000' },
-  posterScrim: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,11,24,0.18)' },
-  topGradient: { position: 'absolute', top: 0, left: 0, right: 0, height: 130 },
-  bottomGradient: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 280 },
+  bottomGradient: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 170 },
   playButtonWrap: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
   playButton: {
     width: 76,
     height: 76,
     borderRadius: 38,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: colors.pink,
+    borderWidth: 0,
+    borderColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
   rail: { position: 'absolute', right: 14, bottom: 100, alignItems: 'center', gap: 18 },
   railAction: { alignItems: 'center', gap: 4 },
-  railActionLabel: { color: colors.text, fontFamily: fonts.monoSemibold, fontSize: 11 },
+  railActionLabel: { ...onBlue, color: '#fff', fontFamily: fonts.monoSemibold, fontSize: 11 },
   railBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  railBtnLiked: { backgroundColor: 'rgba(97,83,245,0.16)', borderColor: colors.indigo },
+  railBtnLiked: { backgroundColor: 'rgba(253,54,103,0.14)', borderColor: colors.pink },
   railCount: { alignItems: 'center' },
-  railCountNumber: { color: colors.text, fontFamily: fonts.monoSemibold, fontSize: 12 },
-  railCountLabel: { color: colors.textMuted, fontFamily: fonts.mono, fontSize: 10, textAlign: 'center', lineHeight: 12 },
+  railCountNumber: { ...onBlue, color: '#fff', fontFamily: fonts.monoSemibold, fontSize: 12 },
+  railCountLabel: { ...onBlue, color: 'rgba(255,255,255,0.75)', fontFamily: fonts.mono, fontSize: 10, textAlign: 'center', lineHeight: 12 },
 });

@@ -76,7 +76,7 @@ export function HelpSupportScreen({ navigation }: Props) {
 
         <Text style={styles.sectionLabel}>Still need help?</Text>
         <Pressable style={styles.contactRow} onPress={contactSupport}>
-          <Feather name="mail" size={18} color={colors.indigo} />
+          <Feather name="mail" size={18} color={colors.pink} />
           <View style={styles.contactText}>
             <Text style={styles.contactTitle}>Email support</Text>
             <Text style={styles.contactSub}>{SUPPORT_EMAIL}</Text>
@@ -84,7 +84,7 @@ export function HelpSupportScreen({ navigation }: Props) {
           <Feather name="chevron-right" size={18} color={colors.textMuted} />
         </Pressable>
         <Pressable style={styles.contactRow} onPress={callSupport}>
-          <Feather name="phone" size={18} color={colors.indigo} />
+          <Feather name="phone" size={18} color={colors.pink} />
           <View style={styles.contactText}>
             <Text style={styles.contactTitle}>Call support</Text>
             <Text style={styles.contactSub}>{SUPPORT_PHONE}</Text>
@@ -94,7 +94,7 @@ export function HelpSupportScreen({ navigation }: Props) {
 
         <Text style={styles.sectionLabel}>Merchant details</Text>
         <View style={styles.contactRow}>
-          <Feather name="briefcase" size={18} color={colors.indigo} />
+          <Feather name="briefcase" size={18} color={colors.pink} />
           <View style={styles.contactText}>
             <Text style={styles.contactTitle}>{MERCHANT_NAME}</Text>
             <Text style={styles.contactSub}>Registered merchant name</Text>

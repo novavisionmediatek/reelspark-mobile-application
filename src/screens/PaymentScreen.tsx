@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -11,7 +11,6 @@ import {
   useReconcilePayment,
   useRegistrationPayment,
   usePayWithPhonePe,
-  usePurchaseWithRevenueCat,
 } from '../hooks/useRegistrationPayment';
 import { colors, fonts, radius, spacing, type } from '../theme/tokens';
 import type { RootStackParamList } from '../navigation/types';
@@ -20,7 +19,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Payment'>;
 
 const DAY_MS = 86_400_000;
 const RENEW_WINDOW_MS = 30 * DAY_MS;
-const IS_IOS = Platform.OS === 'ios';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
@@ -32,6 +30,12 @@ function payErrorMessage(raw: string) {
       return 'Your membership is already active.';
     case 'too_many_attempts':
       return 'Too many attempts — wait a few minutes and try again.';
+    case 'phone_required':
+      return 'Add your phone number in Edit Profile before paying.';
+    case 'payment_in_progress':
+      return 'Your previous payment is still being confirmed. If you did not complete it, wait a few minutes and try again.';
+    case 'payment_failed':
+      return 'The payment failed. No money was taken — please try again.';
     case 'start_payment_failed':
       return "Couldn't start the payment. Please try again.";
     default:
@@ -43,13 +47,9 @@ export function PaymentScreen({ navigation }: Props) {
   const { profile, refreshProfile } = useAuth();
   const { settings } = useAppSettings();
   const { data: payment } = useRegistrationPayment();
-  // Android pays via PhonePe's hosted Standard Checkout against the existing
-  // Edge Functions; iOS pays via RevenueCat/StoreKit, per Apple Guideline
-  // 3.1.1 (§6). Both ultimately just flip the same
-  // profiles.payment_status/paid_until.
-  const payAndroid = usePayWithPhonePe();
-  const payIOS = usePurchaseWithRevenueCat();
-  const pay = IS_IOS ? payIOS : payAndroid;
+  // Pays via PhonePe's hosted Standard Checkout against the Edge Functions;
+  // a confirmed payment flips profiles.payment_status/paid_until.
+  const pay = usePayWithPhonePe();
   const reconcile = useReconcilePayment();
 
   const [error, setError] = useState<string | null>(null);
@@ -70,8 +70,7 @@ export function PaymentScreen({ navigation }: Props) {
   // A confirmed payment (webhook or PhonePe verify/reconcile call) flips profile.payment_status
   // to 'approved'; the 15s poll on the payment row + AuthProvider.refreshProfile
   // (fired from pay.onSuccess) bring it in without a reload. `confirming` = a pay
-  // attempt this session whose result didn't confirm immediately (always true on
-  // iOS — RevenueCat only confirms via its webhook, never a client-side result);
+  // attempt this session whose result didn't confirm immediately;
   // isConfirming(payment) also covers a fresh 'created' row after a reload mid-payment.
   const showConfirming = !membershipActive && !membershipExpired && (confirming || isConfirming(payment));
 
@@ -106,7 +105,6 @@ export function PaymentScreen({ navigation }: Props) {
   }
 
   // "Check again" on the confirming screen — reconcile against PhonePe's API.
-  // Android only; there's no equivalent manual recheck for RevenueCat yet.
   async function handleRecheck() {
     setError(null);
     try {
@@ -124,7 +122,7 @@ export function PaymentScreen({ navigation }: Props) {
     return (
       <SafeAreaView style={styles.screen}>
         <View style={styles.centerCard}>
-          <View style={[styles.iconCircle, { backgroundColor: 'rgba(97,83,245,0.18)' }]}>
+          <View style={[styles.iconCircle, { backgroundColor: 'rgba(253,54,103,0.14)' }]}>
             <Feather name="check-circle" size={26} color={colors.success} />
           </View>
           <Text style={styles.cardTitle}>Membership active</Text>
@@ -185,30 +183,27 @@ export function PaymentScreen({ navigation }: Props) {
     return (
       <SafeAreaView style={styles.screen}>
         <View style={styles.centerCard}>
-          <View style={[styles.iconCircle, { backgroundColor: 'rgba(55,48,163,0.18)' }]}>
+          <View style={[styles.iconCircle, { backgroundColor: 'rgba(125,39,227,0.14)' }]}>
             <ActivityIndicator color={colors.pending} />
           </View>
           <Text style={styles.cardTitle}>Confirming your payment…</Text>
           <Text style={styles.cardBody}>
-            This usually takes a few seconds and updates on its own.
-            {!IS_IOS ? ' If you already paid, tap "Check again". If your payment didn\'t go through, you can pay again.' : ''}
+            This usually takes a few seconds and updates on its own. If you already paid, tap
+            &quot;Check again&quot;. If your payment didn&apos;t go through, you can pay again.
           </Text>
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          {!IS_IOS ? (
-            <Button
-              label={reconcile.isPending ? 'Checking…' : 'Check again'}
-              onPress={handleRecheck}
-              disabled={reconcile.isPending || pay.isPending}
-              loading={reconcile.isPending}
-              style={{ marginTop: spacing.lg }}
-            />
-          ) : null}
+          <Button
+            label={reconcile.isPending ? 'Checking…' : 'Check again'}
+            onPress={handleRecheck}
+            disabled={reconcile.isPending || pay.isPending}
+            loading={reconcile.isPending}
+            style={{ marginTop: spacing.lg }}
+          />
           <Button
             label={pay.isPending ? 'Opening…' : `Pay ₹${fee} again`}
             variant="secondary"
             onPress={handlePay}
             disabled={pay.isPending || reconcile.isPending}
-            style={IS_IOS ? { marginTop: spacing.lg } : undefined}
           />
           <Button label="Back" variant="ghost" onPress={() => navigation.goBack()} />
         </View>
@@ -227,9 +222,7 @@ export function PaymentScreen({ navigation }: Props) {
           <Text style={styles.title}>Activate your membership</Text>
           <Text style={styles.subtitle}>
             A ₹{fee}/year membership unlocks video posting.{' '}
-            {IS_IOS
-              ? 'Pay securely through your Apple ID — access is granted the moment the purchase is confirmed.'
-              : 'Pay securely with UPI, cards, net-banking or wallets via PhonePe — access is granted the moment the payment is confirmed.'}
+            Pay securely with UPI, cards, net-banking or wallets via PhonePe — access is granted the moment the payment is confirmed.
           </Text>
         </View>
 
@@ -330,9 +323,9 @@ const styles = StyleSheet.create({
   rejectedNote: { fontFamily: fonts.body, fontSize: 12, color: colors.textMuted },
 
   referralBox: {
-    backgroundColor: 'rgba(97,83,245,0.12)',
+    backgroundColor: 'rgba(253,54,103,0.10)',
     borderWidth: 1,
-    borderColor: 'rgba(97,83,245,0.4)',
+    borderColor: 'rgba(253,54,103,0.4)',
     borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.lg,

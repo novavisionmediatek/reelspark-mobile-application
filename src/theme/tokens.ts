@@ -1,31 +1,34 @@
-// "Indigo Pulse" — see PROJECT_PLAN.md §1a. Dark near-black indigo canvas + a
-// periwinkle-to-midnight gradient accent; replaced "Emerald Signal" (green)
-// after a color-direction review — blue-violet carries the same "trustworthy
-// for a paid product" meaning green did, while reading more premium/social.
+// "Sunset Spark" — the reelspark.in web palette (orange → coral → pink →
+// magenta → purple gradient), on a bright white canvas. The web build is dark;
+// neutrals here are its own greys (#09090B / #68686F / #A6A6B0) flipped for light.
 // `fonts`/`type`/`radius`/`spacing` are unaffected by the palette change.
 
 export const colors = {
-  background: '#0B0B18',
-  surface: '#14142A',
-  surfaceRaised: '#1C1C38',
-  border: '#2A2A4A',
-  text: '#F1F0FB',
-  textMuted: '#8B87B5',
+  background: '#FFFFFF',
+  surface: '#F7F7FA',
+  surfaceRaised: '#EFEFF5',
+  border: '#E2E2EA',
+  text: '#09090B',
+  textMuted: '#68686F',
   softSurface: '#F4F3FB',
+  // Framing band at the top/bottom of the feed & player, over video (Shorts-style black).
+  // (youtubeEmbedHtml.ts hardcodes the same value — it's an HTML string.)
+  band: '#000000',
 
-  periwinkle: '#7C6EFF',
-  indigo: '#6153F5',
-  violet: '#4A3FD6',
-  deepIndigo: '#3730A3',
-  midnight: '#2C2470',
+  orange: '#FF651C',
+  coral: '#FE4940',
+  pink: '#FD3667', // main solid accent (icons, links, FAB)
+  magenta: '#DB3293',
+  purple: '#7D27E3',
+  deepPurple: '#5B18C9',
 
-  success: '#6153F5',
-  danger: '#F2545B', // kept off-brand on purpose — error states need a universal red, not the accent hue
-  pending: '#3730A3',
+  success: '#7D27E3',
+  danger: '#D92D20', // deeper than the site's #FE4940 so errors stay distinct from the coral/pink accent
+  pending: '#DB3293',
 } as const;
 
 export const gradient = {
-  brand: [colors.periwinkle, colors.indigo, colors.violet, colors.deepIndigo, colors.midnight] as const,
+  brand: [colors.orange, colors.coral, colors.pink, colors.magenta, colors.purple] as const,
   brandLocations: [0, 0.25, 0.48, 0.7, 1] as const,
 };
 

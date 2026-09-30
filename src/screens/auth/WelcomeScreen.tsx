@@ -31,7 +31,7 @@ export function WelcomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <LinearGradient
-        colors={['rgba(97,83,245,0.35)', 'transparent']}
+        colors={['rgba(253,54,103,0.18)', 'transparent']}
         style={styles.glow}
         pointerEvents="none"
       />

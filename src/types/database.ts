@@ -66,7 +66,7 @@ export interface RegistrationPayment {
   upi_reference: string | null;
   screenshot_path: string | null;
   // 'created' = gateway order placed, not yet verified.
-  status: 'created' | 'submitted' | 'approved' | 'rejected';
+  status: 'created' | 'initiated' | 'submitted' | 'approved' | 'rejected';
   // Legacy Razorpay identifiers — still populated on historical rows; the app
   // no longer creates Razorpay orders (PhonePe only, see lib/payments/phonepe.ts).
   razorpay_order_id: string | null;

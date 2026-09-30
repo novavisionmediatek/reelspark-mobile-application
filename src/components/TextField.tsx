@@ -41,8 +41,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.md,
   },
-  focused: { borderColor: colors.indigo },
-  valid: { borderColor: colors.periwinkle },
+  focused: { borderColor: colors.pink },
+  valid: { borderColor: colors.orange },
   input: {
     paddingVertical: 13,
     paddingHorizontal: 14,
