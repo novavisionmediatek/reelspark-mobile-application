@@ -17,7 +17,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Avatar } from '../components/Avatar';
 import { CommentsSheet } from '../components/CommentsSheet';
@@ -35,9 +36,9 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 // and whenever a submission has no real thumbnail art (e.g. Instagram, until the
 // oEmbed Edge Function exists — YouTube ones use the real thumbnail_url).
 const PLACEHOLDER_GRADIENTS: [string, string][] = [
-  [colors.periwinkle, colors.indigo],
-  [colors.violet, colors.midnight],
-  [colors.indigo, colors.deepIndigo],
+  [colors.orange, colors.pink],
+  [colors.magenta, colors.deepPurple],
+  [colors.pink, colors.purple],
 ];
 
 function gradientFor(id: string) {
@@ -253,15 +254,13 @@ function FeedItem({ video, isActive, itemHeight, soundOn, onToggleSound, onCreat
             resizeMode="cover"
             style={StyleSheet.absoluteFill}
           />
-          <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+          <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
         </>
       ) : null}
 
       {/* Stopped/loading-state only: full dim + top scrim + "For You" tag. */}
       {showChrome ? (
         <>
-          <View style={styles.posterScrim} pointerEvents="none" />
-          <LinearGradient colors={['rgba(0,0,0,0.45)', 'transparent']} style={styles.topGradient} pointerEvents="none" />
           <Text style={styles.forYou}>For You</Text>
         </>
       ) : null}
@@ -269,7 +268,7 @@ function FeedItem({ video, isActive, itemHeight, soundOn, onToggleSound, onCreat
       {/* Bottom scrim stays up during playback so the creator/caption row below
           it is legible over the video. */}
       <LinearGradient
-        colors={['transparent', 'rgba(11,11,24,0.95)']}
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.85)']}
         style={styles.bottomGradient}
         pointerEvents="none"
       />
@@ -303,13 +302,13 @@ function FeedItem({ video, isActive, itemHeight, soundOn, onToggleSound, onCreat
       <View style={styles.rail} pointerEvents="box-none">
         <View style={styles.railAction}>
           <Pressable
-            style={[styles.railBtn, liked && styles.railBtnLiked]}
+            style={styles.railBtn}
             onPress={toggleLike}
             accessibilityLabel={liked ? 'Unlike video' : 'Like video'}
           >
-            <Feather name="heart" size={18} color={liked ? colors.indigo : '#fff'} />
+            <Ionicons name={liked ? 'heart' : 'heart-outline'} size={30} color={liked ? colors.pink : '#fff'} />
           </Pressable>
-          {likeCount > 0 ? <Text style={styles.railActionLabel}>{likeCount}</Text> : null}
+          <Text style={styles.railActionLabel}>{likeCount > 0 ? likeCount : 'Like'}</Text>
         </View>
         <View style={styles.railAction}>
           <Pressable
@@ -317,21 +316,27 @@ function FeedItem({ video, isActive, itemHeight, soundOn, onToggleSound, onCreat
             onPress={() => setCommentsOpen(true)}
             accessibilityLabel="View comments"
           >
-            <Feather name="message-circle" size={18} color="#fff" />
+            <Ionicons name="chatbubble-ellipses-outline" size={28} color="#fff" />
           </Pressable>
-          {commentCount > 0 ? <Text style={styles.railActionLabel}>{commentCount}</Text> : null}
+          <Text style={styles.railActionLabel}>{commentCount > 0 ? commentCount : 'Comment'}</Text>
         </View>
-        <Pressable style={styles.railBtn} onPress={handleShare} accessibilityLabel="Share video">
-          <Feather name="share-2" size={18} color="#fff" />
-        </Pressable>
+        <View style={styles.railAction}>
+          <Pressable style={styles.railBtn} onPress={handleShare} accessibilityLabel="Share video">
+            <Ionicons name="arrow-redo-outline" size={30} color="#fff" />
+          </Pressable>
+          <Text style={styles.railActionLabel}>Share</Text>
+        </View>
         {/* YouTube only — a reel starts muted on tap (WebViews block
             autoplay-with-sound with no prior gesture); this turns sound on for
             the current and all future reels. Instagram's own page audio isn't
             reachable from here, so the toggle is hidden for it. */}
         {!isInstagram ? (
-          <Pressable style={styles.railBtn} accessibilityLabel={soundOn ? 'Mute video' : 'Unmute video'} onPress={onToggleSound}>
-            <Feather name={soundOn ? 'volume-2' : 'volume-x'} size={18} color="#fff" />
-          </Pressable>
+          <View style={styles.railAction}>
+            <Pressable style={styles.railBtn} accessibilityLabel={soundOn ? 'Mute video' : 'Unmute video'} onPress={onToggleSound}>
+              <Ionicons name={soundOn ? 'volume-high-outline' : 'volume-mute-outline'} size={28} color="#fff" />
+            </Pressable>
+            <Text style={styles.railActionLabel}>{soundOn ? 'Sound' : 'Muted'}</Text>
+          </View>
         ) : null}
         {/* Deliberately "in-app views", never just "views": this is
             view_count_in_app (watches inside ReelSpark), which is not — and will
@@ -344,14 +349,16 @@ function FeedItem({ video, isActive, itemHeight, soundOn, onToggleSound, onCreat
 
       <View style={styles.overlay} pointerEvents="box-none">
         <Pressable style={styles.creatorRow} onPress={onCreatorPress}>
-          <Avatar initials={initials} size={26} />
-          <Text style={styles.creatorName}>{video.author_name ?? 'Unknown creator'}</Text>
-          <PlatformChip platform={video.platform} />
+          <Avatar initials={initials} size={36} />
+          <Text style={styles.creatorName} numberOfLines={1}>{video.author_name ?? 'Unknown creator'}</Text>
+          <View style={styles.viewPill}>
+            <Text style={styles.viewPillLabel}>View</Text>
+          </View>
         </Pressable>
         <Text style={styles.caption} numberOfLines={2}>
           {video.title ?? 'Untitled submission'}
         </Text>
-        <Text style={styles.swipeHint}>↑ Swipe up for next</Text>
+        <PlatformChip platform={video.platform} onDark />
       </View>
 
       <CommentsSheet
@@ -457,7 +464,7 @@ export function FeedScreen() {
         accessibilityRole="button"
         accessibilityLabel="Open profile"
       >
-        <Feather name="user" size={16} color={colors.text} />
+        <Feather name="user" size={16} color="#fff" />
       </Pressable>
     </View>
   );
@@ -465,7 +472,7 @@ export function FeedScreen() {
   const submitFab = (
     <Pressable
       onPress={() => navigation.navigate('Submit')}
-      style={[styles.submitFab, { bottom: insets.bottom + spacing.xl }]}
+      style={[styles.submitFab, { bottom: insets.bottom + spacing.lg }]}
       accessibilityRole="button"
       accessibilityLabel="Submit a link"
     >
@@ -476,7 +483,7 @@ export function FeedScreen() {
   if (isLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={colors.indigo} />
+        <ActivityIndicator color="#fff" />
         {topBar}
       </View>
     );
@@ -504,6 +511,7 @@ export function FeedScreen() {
 
   return (
     <View style={styles.screen} onLayout={onLayout}>
+      {isFocused ? <StatusBar style="light" /> : null}
       <FlatList
         ref={listRef}
         // Remount cleanly when the feed area resizes so scroll offsets can't
@@ -534,8 +542,12 @@ export function FeedScreen() {
   );
 }
 
+// White text over video, Shorts-style; a soft dark shadow keeps it readable
+// on bright frames.
+const onBlue = { textShadowColor: 'rgba(0,0,0,0.55)', textShadowRadius: 3, textShadowOffset: { width: 0, height: 1 } } as const;
+
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background, overflow: 'hidden' },
+  screen: { flex: 1, backgroundColor: '#000', overflow: 'hidden' },
   list: { flex: 1 },
   topBar: {
     position: 'absolute',
@@ -546,83 +558,76 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     zIndex: 10,
   },
-  wordmark: { ...type.h3, color: colors.text },
+  wordmark: { ...type.h3, color: '#fff', ...onBlue },
   avatar: {
     width: 34,
     height: 34,
     borderRadius: radius.pill,
-    backgroundColor: colors.surfaceRaised,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   submitFab: {
     position: 'absolute',
-    alignSelf: 'center',
-    width: 56,
-    height: 56,
+    right: 14,
+    width: 52,
+    height: 52,
     borderRadius: radius.pill,
-    backgroundColor: colors.indigo,
+    backgroundColor: colors.pink,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.indigo,
+    shadowColor: colors.pink,
     shadowOpacity: 0.4,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
     elevation: 6,
     zIndex: 10,
   },
-  submitFabLabel: { fontSize: 30, lineHeight: 32, color: colors.background, fontFamily: type.h1.fontFamily },
-  centered: { flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.sm },
-  emptyTitle: { color: colors.text, fontFamily: fonts.displaySemibold, fontSize: 18 },
-  emptyText: { color: colors.textMuted, fontFamily: fonts.body, fontSize: 13, textAlign: 'center' },
+  submitFabLabel: { fontSize: 30, lineHeight: 32, color: '#fff', fontFamily: type.h1.fontFamily },
+  centered: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.sm },
+  emptyTitle: { color: '#fff', fontFamily: fonts.displaySemibold, fontSize: 18 },
+  emptyText: { color: 'rgba(255,255,255,0.7)', fontFamily: fonts.body, fontSize: 13, textAlign: 'center' },
   item: { width: '100%', overflow: 'hidden' },
-  posterScrim: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(11,11,24,0.18)' },
   playerFill: { ...StyleSheet.absoluteFill, backgroundColor: '#000' },
   playButtonWrap: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
   playButton: {
     width: 76,
     height: 76,
     borderRadius: 38,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: colors.pink,
+    borderWidth: 0,
+    borderColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  topGradient: { position: 'absolute', top: 0, left: 0, right: 0, height: 130 },
-  bottomGradient: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 280 },
+  bottomGradient: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 300 },
   forYou: {
     position: 'absolute',
     top: 60,
     alignSelf: 'center',
-    color: colors.textMuted,
+    color: 'rgba(255,255,255,0.8)',
+    ...onBlue,
     fontFamily: fonts.mono,
     fontSize: 11,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
-  rail: { position: 'absolute', right: 14, bottom: 100, alignItems: 'center', gap: 18 },
+  rail: { position: 'absolute', right: 8, bottom: 96, alignItems: 'center', gap: 16 },
   railAction: { alignItems: 'center', gap: 4 },
-  railActionLabel: { color: colors.text, fontFamily: fonts.monoSemibold, fontSize: 11 },
+  railActionLabel: { ...onBlue, color: '#fff', fontFamily: fonts.bodySemibold, fontSize: 12 },
   railBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
+    width: 48,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  railBtnLiked: { backgroundColor: 'rgba(97,83,245,0.16)', borderColor: colors.indigo },
   railCount: { alignItems: 'center' },
-  railCountNumber: { color: colors.text, fontFamily: fonts.monoSemibold, fontSize: 12 },
-  railCountLabel: { color: colors.textMuted, fontFamily: fonts.mono, fontSize: 10, textAlign: 'center', lineHeight: 12 },
-  overlay: { position: 'absolute', left: 18, right: 74, bottom: 40, gap: 8 },
-  creatorRow: { flexDirection: 'row', alignItems: 'center', gap: 9 },
-  creatorName: { color: colors.text, fontFamily: fonts.bodySemibold, fontSize: 14 },
-  caption: { color: '#EDEDF2', fontFamily: fonts.body, fontSize: 13, lineHeight: 19 },
-  swipeHint: { color: colors.textMuted, fontFamily: fonts.body, fontSize: 11 },
+  railCountNumber: { ...onBlue, color: '#fff', fontFamily: fonts.monoSemibold, fontSize: 12 },
+  railCountLabel: { ...onBlue, color: 'rgba(255,255,255,0.75)', fontFamily: fonts.mono, fontSize: 10, textAlign: 'center', lineHeight: 12 },
+  overlay: { position: 'absolute', left: 14, right: 82, bottom: 28, gap: 10 },
+  creatorRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  creatorName: { ...onBlue, color: '#fff', fontFamily: fonts.bodySemibold, fontSize: 15, flexShrink: 1 },
+  viewPill: { paddingVertical: 7, paddingHorizontal: 16, borderRadius: radius.pill, backgroundColor: '#fff' },
+  viewPillLabel: { color: '#09090B', fontFamily: fonts.bodySemibold, fontSize: 13 },
+  caption: { ...onBlue, color: '#fff', fontFamily: fonts.body, fontSize: 14, lineHeight: 20 },
 });

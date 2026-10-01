@@ -48,6 +48,11 @@ function ReferralCard() {
   const paidUntilMs = profile?.paid_until ? new Date(profile.paid_until).getTime() : null;
   const expired = status === 'approved' && paidUntilMs !== null && paidUntilMs <= Date.now();
   const pill = expired ? PAYMENT_PILL.expired : PAYMENT_PILL[status] ?? PAYMENT_PILL.unpaid;
+  // Only an active (paid, unexpired) membership can refer anyone — mirrors
+  // PaymentScreen's membershipActive and the server-side gate in
+  // credit_referrer_bonus (has_active_membership), so the client-hidden state
+  // matches what the backend would actually pay out for.
+  const membershipActive = status === 'approved' && !expired;
 
   const { data: friendCount } = useQuery({
     queryKey: ['referralCount', profile?.id],
@@ -63,7 +68,7 @@ function ReferralCard() {
   });
 
   async function shareInvite() {
-    if (!code) return;
+    if (!membershipActive || !code) return;
     const link = referralLink(code);
     try {
       await Share.share({
@@ -85,15 +90,31 @@ function ReferralCard() {
         </Pressable>
       </View>
 
-      <Text style={styles.referralBody}>
-        Friends who join with your code and complete registration earn you ₹{settings.referral_bonus_inr}.
-      </Text>
+      {membershipActive ? (
+        <>
+          <Text style={styles.referralBody}>
+            Friends who join with your code and complete registration earn you ₹{settings.referral_bonus_inr}.
+          </Text>
 
-      <Pressable style={styles.codeRow} onPress={shareInvite}>
-        <Text style={styles.code}>{code || '—'}</Text>
-        <Feather name="share-2" size={15} color={colors.indigo} />
-        <Text style={styles.codeHint}>Tap to share invite link</Text>
-      </Pressable>
+          <Pressable style={styles.codeRow} onPress={shareInvite}>
+            <Text style={styles.code}>{code || '—'}</Text>
+            <Feather name="share-2" size={15} color={colors.pink} />
+            <Text style={styles.codeHint}>Tap to share invite link</Text>
+          </Pressable>
+        </>
+      ) : (
+        <>
+          <Text style={styles.referralBody}>
+            Activate your ₹{settings.registration_fee_inr}/year membership to unlock your referral code and start
+            earning.
+          </Text>
+
+          <Pressable style={styles.codeRow} onPress={() => rootNav?.navigate('Payment')}>
+            <Text style={styles.codeHint}>Pay to unlock referrals</Text>
+            <Feather name="chevron-right" size={16} color={colors.pink} />
+          </Pressable>
+        </>
+      )}
 
       <View style={styles.referralStatsRow}>
         <View>
@@ -107,7 +128,7 @@ function ReferralCard() {
       </View>
 
       <Pressable style={styles.walletRow} onPress={() => profileNav.navigate('ReferralWallet')}>
-        <Feather name="credit-card" size={14} color={colors.indigo} />
+        <Feather name="credit-card" size={14} color={colors.pink} />
         <Text style={styles.walletLink}>Withdraw &amp; transactions</Text>
         <Feather name="chevron-right" size={16} color={colors.textMuted} />
       </Pressable>
@@ -143,7 +164,7 @@ export function ProfileScreen({ navigation }: Props) {
             <View style={styles.handleRow}>
               {profile?.youtube_handle && (
                 <View style={styles.handleChip}>
-                  <View style={[styles.platformMark, { backgroundColor: colors.indigo }]}>
+                  <View style={[styles.platformMark, { backgroundColor: colors.pink }]}>
                     <Text style={styles.platformMarkText}>YT</Text>
                   </View>
                   <Text style={styles.handleText}>{profile.youtube_handle}</Text>
@@ -151,7 +172,7 @@ export function ProfileScreen({ navigation }: Props) {
               )}
               {profile?.instagram_handle && (
                 <View style={styles.handleChip}>
-                  <View style={[styles.platformMark, { backgroundColor: colors.violet }]}>
+                  <View style={[styles.platformMark, { backgroundColor: colors.magenta }]}>
                     <Text style={styles.platformMarkText}>IG</Text>
                   </View>
                   <Text style={styles.handleText}>{profile.instagram_handle}</Text>
@@ -185,7 +206,7 @@ export function ProfileScreen({ navigation }: Props) {
               onPress={() => navigation.navigate(item.screen)}
             >
               <Text style={styles.settingsLabel}>{item.label}</Text>
-              <Feather name="chevron-right" size={18} color="#4A4A52" />
+              <Feather name="chevron-right" size={18} color={colors.textMuted} />
             </Pressable>
           ))}
           <Pressable style={styles.settingsItem} onPress={handleLogout}>
@@ -269,7 +290,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  walletLink: { flex: 1, fontFamily: fonts.bodySemibold, fontSize: 12.5, color: colors.indigo },
+  walletLink: { flex: 1, fontFamily: fonts.bodySemibold, fontSize: 12.5, color: colors.pink },
   statTiles: { flexDirection: 'row', gap: spacing.sm },
   statTile: {
     flex: 1,
@@ -282,7 +303,7 @@ const styles = StyleSheet.create({
   },
   statNum: { fontFamily: fonts.monoSemibold, fontSize: 20, color: colors.text },
   statLbl: { fontFamily: fonts.body, fontSize: 10.5, color: colors.textMuted, marginTop: 2 },
-  statSub: { fontFamily: fonts.body, fontSize: 9, color: '#68686F', marginTop: 3 },
+  statSub: { fontFamily: fonts.body, fontSize: 9, color: colors.textMuted, marginTop: 3 },
   settingsList: { borderTopWidth: 1, borderTopColor: colors.border, marginTop: spacing.sm },
   settingsItem: {
     flexDirection: 'row',

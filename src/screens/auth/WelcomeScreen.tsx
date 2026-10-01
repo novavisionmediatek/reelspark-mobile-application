@@ -10,7 +10,7 @@ import type { AuthStackParamList } from '../../navigation/types';
 type Props = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
 
 // Static policy pages served at reelspark.in/legal/*.html — must be reachable
-// without an account (Razorpay website checklist). Ported from the web build's
+// without an account (payment gateway website checklist). Ported from the web build's
 // same-origin relative links (§1 of PROJECT_PLAN.md: "don't duplicate" — open
 // the live pages instead of bundling a copy into the app).
 const LEGAL_LINKS = [
@@ -31,7 +31,7 @@ export function WelcomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <LinearGradient
-        colors={['rgba(97,83,245,0.35)', 'transparent']}
+        colors={['rgba(253,54,103,0.18)', 'transparent']}
         style={styles.glow}
         pointerEvents="none"
       />

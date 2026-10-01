@@ -16,9 +16,9 @@ import type { RootStackParamList } from '../navigation/types';
 type Props = NativeStackScreenProps<RootStackParamList, 'UserProfile'>;
 
 const GRADIENTS: [string, string][] = [
-  [colors.periwinkle, colors.indigo],
-  [colors.violet, colors.midnight],
-  [colors.indigo, colors.deepIndigo],
+  [colors.orange, colors.pink],
+  [colors.magenta, colors.deepPurple],
+  [colors.pink, colors.purple],
 ];
 
 function VideoGridItem({ video, index, itemWidth, itemHeight, onPress }: { video: Video; index: number; itemWidth: number; itemHeight: number; onPress: () => void }) {
@@ -139,7 +139,7 @@ export function UserProfileScreen({ route, navigation }: Props) {
 
       {isLoading ? (
         <View style={styles.centered}>
-          <ActivityIndicator color={colors.indigo} />
+          <ActivityIndicator color={colors.pink} />
         </View>
       ) : isError ? (
         <View style={styles.centered}>

@@ -62,8 +62,8 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.4 },
   primaryLabel: { color: '#fff', fontFamily: fonts.bodySemibold, fontSize: 15 },
   secondary: { borderWidth: 1, borderColor: colors.border, backgroundColor: 'transparent' },
-  secondaryPressed: { borderColor: colors.indigo, backgroundColor: colors.surface },
+  secondaryPressed: { borderColor: colors.pink, backgroundColor: colors.surface },
   secondaryLabel: { color: colors.text, fontFamily: fonts.bodySemibold, fontSize: 15 },
   ghost: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md, alignItems: 'center' },
-  ghostLabel: { color: colors.indigo, fontFamily: fonts.bodySemibold, fontSize: 14 },
+  ghostLabel: { color: colors.pink, fontFamily: fonts.bodySemibold, fontSize: 14 },
 });

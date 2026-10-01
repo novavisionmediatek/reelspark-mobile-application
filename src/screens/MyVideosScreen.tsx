@@ -13,9 +13,9 @@ import type { Video } from '../types/database';
 type Props = NativeStackScreenProps<ProfileStackParamList, 'MyVideos'>;
 
 const ROW_GRADIENTS: [string, string][] = [
-  [colors.periwinkle, colors.indigo],
-  [colors.violet, colors.midnight],
-  [colors.indigo, colors.deepIndigo],
+  [colors.orange, colors.pink],
+  [colors.magenta, colors.deepPurple],
+  [colors.pink, colors.purple],
 ];
 
 function VideoRow({ video, index, columns }: { video: Video; index: number; columns: number }) {
@@ -67,7 +67,7 @@ export function MyVideosScreen({ navigation }: Props) {
 
       {isLoading ? (
         <View style={styles.centered}>
-          <ActivityIndicator color={colors.indigo} />
+          <ActivityIndicator color={colors.pink} />
         </View>
       ) : isError ? (
         <View style={styles.centered}>

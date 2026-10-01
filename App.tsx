@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { DarkTheme, NavigationContainer, type Theme } from '@react-navigation/native';
+import * as SystemUI from 'expo-system-ui';
+import { DefaultTheme, NavigationContainer, type Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -23,22 +24,22 @@ const Stack = createNativeStackNavigator();
 // Without this the navigator's scene/card background is React Navigation's default
 // light grey, which shows around max-width screens on wide viewports.
 const navTheme: Theme = {
-  ...DarkTheme,
+  ...DefaultTheme,
   colors: {
-    ...DarkTheme.colors,
+    ...DefaultTheme.colors,
     background: colors.background,
     card: colors.background,
     text: colors.text,
     border: colors.border,
-    primary: colors.indigo,
-    notification: colors.indigo,
+    primary: colors.pink,
+    notification: colors.pink,
   },
 };
 
 function LoadingScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
-      <ActivityIndicator color={colors.indigo} />
+      <ActivityIndicator color={colors.pink} />
     </View>
   );
 }
@@ -89,6 +90,8 @@ export default function App() {
 
   useEffect(() => {
     initReferralCapture();
+    // Native window background — otherwise the status-bar strip shows black.
+    SystemUI.setBackgroundColorAsync(colors.background).catch(() => {});
   }, []);
 
   if (!fontsLoaded) return <LoadingScreen />;
@@ -98,7 +101,7 @@ export default function App() {
       <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <NavigationContainer theme={navTheme}>
-            <StatusBar style="light" />
+            <StatusBar style="dark" />
             <AppGate />
           </NavigationContainer>
         </QueryClientProvider>

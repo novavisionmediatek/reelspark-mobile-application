@@ -116,7 +116,7 @@ export function CommentsSheet({ videoId, visible, onClose, onCountDelta }: Comme
 
         {isLoading ? (
           <View style={styles.centered}>
-            <ActivityIndicator color={colors.indigo} />
+            <ActivityIndicator color={colors.pink} />
           </View>
         ) : isError ? (
           <View style={styles.centered}>
@@ -139,7 +139,7 @@ export function CommentsSheet({ videoId, visible, onClose, onCountDelta }: Comme
             }}
             ListFooterComponent={
               isFetchingNextPage ? (
-                <ActivityIndicator color={colors.indigo} style={{ marginVertical: spacing.md }} />
+                <ActivityIndicator color={colors.pink} style={{ marginVertical: spacing.md }} />
               ) : null
             }
           />
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   commentMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   commentAuthor: { color: colors.text, fontFamily: fonts.bodySemibold, fontSize: 13 },
   commentTime: { color: colors.textMuted, fontFamily: fonts.mono, fontSize: 10 },
-  commentText: { color: '#EDEDF2', fontFamily: fonts.body, fontSize: 13, lineHeight: 18 },
+  commentText: { color: colors.text, fontFamily: fonts.body, fontSize: 13, lineHeight: 18 },
   commentDelete: { padding: 4 },
   inputRow: {
     flexDirection: 'row',
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.indigo,
+    backgroundColor: colors.pink,
     alignItems: 'center',
     justifyContent: 'center',
   },
