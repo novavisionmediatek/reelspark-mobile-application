@@ -6,19 +6,29 @@
 // trigger/Edge Function calling Expo's push API) that isn't part of this file
 // and hasn't been built yet.
 import { Platform } from 'react-native';
-import Constants from 'expo-constants';
-import * as Notifications from 'expo-notifications';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { supabase } from './supabase';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// expo-notifications throws at import time inside Expo Go on Android (remote
+// push was removed from Expo Go in SDK 53), which would crash the whole app on
+// launch. So it's loaded lazily, and never in Expo Go — push only works in a
+// development/production build anyway.
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+function loadNotifications(): typeof import('expo-notifications') | null {
+  if (isExpoGo) return null;
+  const Notifications = require('expo-notifications') as typeof import('expo-notifications');
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+  return Notifications;
+}
 
 // Registers this device's Expo push token against the signed-in user. Safe to
 // call every app start / login — `register_push_token` upserts by token, so
@@ -29,6 +39,12 @@ Notifications.setNotificationHandler({
 // error from this, just no token registered.
 export async function registerForPushNotifications(): Promise<void> {
   try {
+    const Notifications = loadNotifications();
+    if (!Notifications) {
+      console.log('[push] running in Expo Go — push notifications need a development build, skipping.');
+      return;
+    }
+
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
         name: 'default',

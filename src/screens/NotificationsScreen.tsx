@@ -52,7 +52,7 @@ export function NotificationsScreen({ navigation }: Props) {
               <Switch
                 value={prefs[item.key]}
                 onValueChange={(v) => setPref(item.key, v)}
-                trackColor={{ false: colors.border, true: colors.indigo }}
+                trackColor={{ false: colors.border, true: colors.pink }}
                 thumbColor="#fff"
               />
             </View>

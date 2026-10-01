@@ -62,7 +62,7 @@ export const INSTAGRAM_EXTRA_HEIGHT_PX = 400;
 
 // Top + bottom scrim "padding" over the clip, on top of the WebView — the same
 // treatment the YouTube embed gives itself (youtubeEmbedHtml.ts MASK_*). Each
-// strip is opaque black for the first OPAQUE px, then fades to transparent over
+// strip is opaque white for the first OPAQUE px, then fades to transparent over
 // the rest so it reads as framing, not a hard bar:
 //  - TOP: pure header padding. IG draws no chrome at the top edge (its header is
 //    pulled off-clip), so this is mostly fade — a slim dark band that gives the
@@ -72,8 +72,8 @@ export const INSTAGRAM_EXTRA_HEIGHT_PX = 400;
 //    be tall enough to hide that text; it then fades up into the video. It does
 //    NOT cover IG's centre "Watch again on Instagram" replay card (inside IG's
 //    own page — only the raw .mp4 avoids that).
-export const INSTAGRAM_MASK_TOP_HEIGHT_PX = 112;
-export const INSTAGRAM_MASK_TOP_OPAQUE_PX = 40;
+export const INSTAGRAM_MASK_TOP_HEIGHT_PX = 200;
+export const INSTAGRAM_MASK_TOP_OPAQUE_PX = 150;
 export const INSTAGRAM_MASK_BOTTOM_HEIGHT_PX = 240;
 export const INSTAGRAM_MASK_BOTTOM_OPAQUE_PX = 168;
 

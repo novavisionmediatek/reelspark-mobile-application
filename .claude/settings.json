@@ -2,10 +2,37 @@
   "permissions": {
     "allow": [
       "Bash(npx --yes create-expo-app@latest mobile-native --template blank-typescript)",
-      "Bash(git status *)"
+      "Bash(git status *)",
+      "Bash(npm uninstall *)",
+      "Bash(supabase projects *)",
+      "Bash(ipconfig)",
+      "Bash(adb devices *)",
+      "PowerShell(Get-NetConnectionProfile)",
+      "Bash(curl -s -m 5 http://localhost:8081/status)",
+      "Bash(curl -s -m 120 -o /dev/null -w \"bundle http=%{http_code} size=%{size_download} time=%{time_total}s\\\\n\" \"http://localhost:8081/index.bundle?platform=android&dev=true&minify=false\")",
+      "Bash(npx expo-doctor *)",
+      "Bash(curl -s -m 20 -H \"expo-platform: android\" -H \"Accept: application/expo+json,application/json\" http://192.168.1.19:8081/)",
+      "Bash(curl -s -m 200 -o /tmp/b.js -w \"http=%{http_code} size=%{size_download} time=%{time_total}s\\\\n\" \"http://192.168.1.19:8081/index.bundle?platform=android&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.bytecode=1&unstable_transformProfile=hermes-stable\")",
+      "Bash(python -)",
+      "Bash(node -)",
+      "Bash(grep -E \"^expo-linking$\")",
+      "Bash(sed -i -e 's/^  screen: { flex: 1, backgroundColor: colors.background, overflow: '\\\\''hidden'\\\\'' },/  screen: { flex: 1, backgroundColor: '\\\\''#000'\\\\'', overflow: '\\\\''hidden'\\\\'' },/' -e 's/^  wordmark: { ...type.h3, color: colors.text },/  wordmark: { ...type.h3, color: onVideo.text },/' -e 's/^    backgroundColor: colors.surfaceRaised,$/    backgroundColor: onVideo.chip,/' -e 's/^    borderColor: colors.border,$/    borderColor: onVideo.chipBorder,/' -e 's/^    color: colors.textMuted,$/    color: onVideo.textMuted,/' -e 's/railActionLabel: { color: colors.text/railActionLabel: { color: onVideo.text/' -e 's/railCountNumber: { color: colors.text/railCountNumber: { color: onVideo.text/' -e 's/railCountLabel: { color: colors.textMuted/railCountLabel: { color: onVideo.textMuted/' -e 's/creatorName: { color: colors.text/creatorName: { color: onVideo.text/' -e 's/swipeHint: { color: colors.textMuted/swipeHint: { color: onVideo.textMuted/' -e 's/submitFabLabel: { fontSize: 30, lineHeight: 32, color: colors.background/submitFabLabel: { fontSize: 30, lineHeight: 32, color: '\\\\''#fff'\\\\''/' -e 's/<Feather name=\"user\" size={16} color={colors.text} \\\\/>/<Feather name=\"user\" size={16} color={onVideo.text} \\\\/>/' src/screens/FeedScreen.tsx)",
+      "Bash(sed -i -e 's/railActionLabel: { color: colors.text/railActionLabel: { color: onVideo.text/' -e 's/railCountNumber: { color: colors.text/railCountNumber: { color: onVideo.text/' -e 's/railCountLabel: { color: colors.textMuted/railCountLabel: { color: onVideo.textMuted/' src/screens/VideoPlayerScreen.tsx)",
+      "Bash(sed -i \"s/import { colors, fonts, radius, spacing, type } from '..\\\\/theme\\\\/tokens';/import { colors, fonts, onVideo, radius, spacing, type } from '..\\\\/theme\\\\/tokens';/\" src/screens/FeedScreen.tsx)",
+      "Bash(sed -i \"s/import { colors, fonts, spacing, type } from '..\\\\/theme\\\\/tokens';/import { colors, fonts, onVideo, spacing, type } from '..\\\\/theme\\\\/tokens';/\" src/screens/VideoPlayerScreen.tsx)",
+      "Bash(sed -i \"s/background: #000;/background: #fff;/; s/linear-gradient\\(to bottom, #000 0, #000 /linear-gradient\\(to bottom, #fff 0, #fff /; s/linear-gradient\\(to top, #000 0, #000 /linear-gradient\\(to top, #fff 0, #fff /; s/rgba\\(0,0,0,0\\) 100%/rgba\\(255,255,255,0\\) 100%/\" src/components/youtubeEmbedHtml.ts)",
+      "Bash(sed -i \"s/backgroundColor: '#000'/backgroundColor: '#fff'/; s/colors={\\\\['#000', '#000', 'transparent'\\\\]}/colors={['#fff', '#fff', 'rgba\\(255,255,255,0\\)']}/; s/colors={\\\\['transparent', '#000', '#000'\\\\]}/colors={['rgba\\(255,255,255,0\\)', '#fff', '#fff']}/; s/color: 'rgba\\(255,255,255,0.75\\)'/color: colors.textMuted/\" src/components/VideoPlayer.tsx)",
+      "Bash(node -e ' *)",
+      "Bash(npx eas-cli@latest init --force --non-interactive)",
+      "Bash(npx eas-cli@latest build --platform android --profile preview --non-interactive --no-wait)",
+      "Bash(npx eas-cli@latest build:view 5edf4b95-9659-4bf3-a381-062edfa1e0c8 --json)",
+      "Bash(node -e \"let s='';process.stdin.on\\('data',d=>s+=d\\).on\\('end',\\(\\)=>{const j=JSON.parse\\(s\\);console.log\\(j.status,j.artifacts&&j.artifacts.buildUrl,j.error&&JSON.stringify\\(j.error\\)\\)}\\)\")",
+      "Bash(node \"C:/Users/PIYUSH~1/AppData/Local/Temp/claude/d--project-mobile-application/26e9dcbc-61d8-4486-83a0-4e24ee91e2ce/scratchpad/shorts.js\")",
+      "Bash(npx eas-cli@latest build:view 9c2d1d8c-ba22-4dcb-85b0-cdb75b7be2e2 --json)"
     ],
     "additionalDirectories": [
-      "D:\\project\\reelspark\\reelsparks"
+      "D:\\project\\reelspark\\reelsparks",
+      "D:\\project\\reelspark\\reelsparks\\supabase\\migrations"
     ]
   }
 }

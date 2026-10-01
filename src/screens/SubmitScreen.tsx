@@ -42,7 +42,7 @@ function PaymentGate() {
     <SafeAreaView style={styles.screen}>
       <View style={styles.gate}>
         <View style={styles.gateIcon}>
-          <Feather name="loader" size={22} color={colors.indigo} />
+          <Feather name="loader" size={22} color={colors.pink} />
         </View>
         <Text style={styles.gateTitle}>
           {expired ? 'Renew your membership' : `Activate your ₹${settings.registration_fee_inr}/year membership`}
@@ -138,7 +138,7 @@ function SubmitForm() {
             onPress={handleSubmit}
           />
         )}
-        {submitVideo.isPending && <ActivityIndicator color={colors.indigo} />}
+        {submitVideo.isPending && <ActivityIndicator color={colors.pink} />}
         {submitVideo.isError && (
           <Text style={styles.errorText}>{(submitVideo.error as Error)?.message ?? 'Something went wrong.'}</Text>
         )}
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: 'rgba(97,83,245,0.14)',
+    backgroundColor: 'rgba(253,54,103,0.12)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.sm,
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   },
   validateRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: spacing.sm },
   validateText: { color: colors.success, fontFamily: fonts.bodySemibold, fontSize: 12 },
-  tryLink: { color: colors.indigo, fontFamily: fonts.bodySemibold, fontSize: 12, marginTop: spacing.md },
+  tryLink: { color: colors.pink, fontFamily: fonts.bodySemibold, fontSize: 12, marginTop: spacing.md },
   metaPreview: {
     marginTop: spacing.lg,
     backgroundColor: colors.surface,
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.md,
   },
-  metaThumb: { width: 64, height: 64, borderRadius: 8, backgroundColor: colors.midnight },
+  metaThumb: { width: 64, height: 64, borderRadius: 8, backgroundColor: colors.deepPurple },
   metaInfo: { flex: 1, gap: 4, justifyContent: 'center' },
   metaTitle: { color: colors.text, fontFamily: fonts.bodySemibold, fontSize: 13 },
   metaAuthor: { color: colors.textMuted, fontFamily: fonts.body, fontSize: 11.5 },

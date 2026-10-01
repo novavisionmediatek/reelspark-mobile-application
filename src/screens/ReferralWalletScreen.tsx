@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   helpText: { color: colors.textMuted, fontFamily: fonts.body, fontSize: 12, lineHeight: 18 },
   form: { gap: spacing.xs },
   fieldLabel: { color: colors.textMuted, fontFamily: fonts.body, fontSize: 12, marginBottom: 4 },
-  maxLink: { color: colors.indigo, fontFamily: fonts.bodyMedium, fontSize: 12, marginTop: 6 },
+  maxLink: { color: colors.pink, fontFamily: fonts.bodyMedium, fontSize: 12, marginTop: 6 },
   errorText: { color: colors.danger, fontFamily: fonts.body, fontSize: 12, marginTop: spacing.sm },
   blockedText: {
     color: colors.textMuted,
